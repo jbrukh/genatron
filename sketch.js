@@ -6,7 +6,7 @@ let BASEDIM = 1000;
 
 // randomness
 let SEED;
-let NOISESEED = 100; // FIXED NOISESEED!
+let NOISESEED; // FIXED NOISESEED!
 
 // global variables
 var t = 0;
@@ -68,15 +68,12 @@ function setup() {
   button = createButton('Same params');
   button.position(1000, 25);
   button.mousePressed(newSunset);
-  
 }
 
 function rollParams() {
   params = [random(-100, 100), random(-100, 100), random(-100, 100), random(-100, 100), random(-100, 100), random(-100, 100), random(-100, 100), random(-100, 100)];
   spins = random(1000, 3200);
   opacity = random(10, 50);
-  smoothFactor = 1;
-  delta = random(0.0001, 0.001);
   console.log(JSON.stringify(getParams()));
   return getParams();
 }
@@ -93,7 +90,6 @@ function classify(cute) {
       output: output,
     };
     trainingData.push(dataPoint);
-    // console.log(trainingData);
     net = new brain.NeuralNetwork({
       activation: 'tanh',
       hiddenLayers: [7, 7],
@@ -106,17 +102,13 @@ function classify(cute) {
 }
 
 function next() {
-
   let rating = 0;
-  
   if (trainingData.length > 0) {
     for (let i = 0; i < 100; i++) {
       let p = rollParams();
-
       let out = net.run(p);
       rating = out[0];
       console.log(i, rating);
-
       if (rating > 0.5) break;
     }
   }
@@ -135,17 +127,19 @@ function keyTyped() {
   }
 }
 
+// create a single bezier
 function plan1(P1, P2, P3, P4, P5, P6, P7, P8) {
-  return  [(DIM + offsetPx) * noise((t + P1)*smoothFactor) - offsetPx/2,
-          DIM * noise((t + P2)*smoothFactor),
-          DIM * noise((t + P3)*smoothFactor),
-          (DIM + offsetPx) * noise((t + P4)*smoothFactor) - offsetPx/2,
-          (DIM + offsetPx) * noise((t + P5)*smoothFactor) - offsetPx/2,
-          DIM * noise((t + P6)*smoothFactor),
-          DIM * noise((t + P7)*smoothFactor),
-          (DIM + offsetPx) * noise((t + P8)*smoothFactor) - offsetPx/2];
+  return  [(DIM + offsetPx) * noise(t + P1) - offsetPx/2,
+          DIM * noise(t + P2),
+          DIM * noise(t + P3),
+          (DIM + offsetPx) * noise(t + P4) - offsetPx/2,
+          (DIM + offsetPx) * noise(t + P5) - offsetPx/2,
+          DIM * noise(t + P6),
+          DIM * noise(t + P7),
+          (DIM + offsetPx) * noise(t + P8) - offsetPx/2];
 }
 
+// create a lot of beziers
 function newSunset() {
   background(0);
   for (let i = 0; i < spins; i++) { 
